@@ -17,16 +17,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/checkout@v6.0.3
         with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: |
-          npm install -g serve
+          fetch-depth: 0
 
       - name: Validate site files
         run: |
@@ -42,14 +35,16 @@ jobs:
           echo "Static site ready in web/"
 
       - name: Deploy to GitHub Pages
-        if: github.repository_owner == github.actor
+        if: github.event_name == 'push'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./web
           publish_branch: gh-pages
           keep_files: false
+          commit_message: "Deploy Quicker Shoes static site"
 
       - name: Confirm deploy
+        if: github.event_name == 'push'
         run: |
           echo "Deployment completed successfully."
