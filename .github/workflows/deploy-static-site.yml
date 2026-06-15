@@ -1,0 +1,55 @@
+name: Deploy Quicker Shoes Static Site
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  publish:
+    name: Publish static site
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install -g serve
+
+      - name: Validate site files
+        run: |
+          echo "Checking web directory contents..."
+          ls -R web
+          if [ ! -d "web" ]; then
+            echo "web directory not found";
+            exit 1;
+          fi
+
+      - name: Build preview output
+        run: |
+          echo "Static site ready in web/"
+
+      - name: Deploy to GitHub Pages
+        if: github.repository_owner == github.actor
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./web
+          publish_branch: gh-pages
+          keep_files: false
+
+      - name: Confirm deploy
+        run: |
+          echo "Deployment completed successfully."
